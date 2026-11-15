@@ -9,92 +9,203 @@
     <title>Mini Feedback App</title>
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f0f2f5;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
+            padding: 20px;
         }
 
         .container {
             background: white;
-            padding: 30px;
-            width: 320px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px #0002;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            animation: appear 0.6s ease;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            margin: 0 auto 20px;
         }
 
         h2 {
             text-align: center;
+            font-size: 27px;
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
         }
 
         input, textarea {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background: #2563eb;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            transition: 0.3s;
         }
 
         button:hover {
-            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         #result {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 18px;
+            font-size: 14px;
+            font-weight: 600;
         }
-    </style>
 
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 22px;
+            }
+        }
+
+    </style>
 </head>
 
 <body>
 
     <div class="container">
 
-        <h2>Feedback Form</h2>
+        <div class="icon">💬</div>
+
+        <h2>Share Your Feedback</h2>
+
+        <p class="subtitle">
+            We'd love to hear your thoughts!
+        </p>
 
         <form id="feedbackForm">
 
-            <input
-                type="text"
-                id="name"
-                placeholder="Enter your name"
-                required
-            >
+            <div class="form-group">
+                <label for="name">Your Name</label>
 
-            <textarea
-                id="message"
-                placeholder="Enter your feedback"
-                required
-            ></textarea>
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Enter your name"
+                    required
+                >
+            </div>
 
-            <button type="submit">Submit Feedback</button>
+            <div class="form-group">
+                <label for="message">Your Feedback</label>
+
+                <textarea
+                    id="message"
+                    placeholder="Write your feedback here..."
+                    required
+                ></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                Submit Feedback →
+            </button>
 
         </form>
 
         <p id="result"></p>
 
-    </div>
+        <div class="footer">
+            Made with ❤️ | Mini Feedback App
+        </div>
 
+    </div>
 
     <script>
 
         const form = document.getElementById("feedbackForm");
+        const result = document.getElementById("result");
+        const submitBtn = document.getElementById("submitBtn");
 
         form.addEventListener("submit", async function(event) {
 
@@ -103,28 +214,54 @@
             const name = document.getElementById("name").value;
             const message = document.getElementById("message").value;
 
-            const response = await fetch(
-                "http://127.0.0.1:8000/feedback",
-                {
-                    method: "POST",
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting...";
+            result.innerText = "";
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+            try {
 
-                    body: JSON.stringify({
-                        name: name,
-                        message: message
-                    })
+                const response = await fetch(
+                    "http://15.206.90.139:8000/feedback",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            name: name,
+                            message: message
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || "Submission failed");
                 }
-            );
 
-            const data = await response.json();
+                result.style.color = "#16a34a";
+                result.innerText = "✓ Feedback submitted successfully!";
 
-            document.getElementById("result").innerText =
-                data.message;
+                form.reset();
 
-            form.reset();
+            }
+
+            catch (error) {
+
+                result.style.color = "#dc2626";
+                result.innerText = "Error: " + error.message;
+
+            }
+
+            finally {
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Feedback →";
+
+            }
 
         });
 
