@@ -1,5 +1,5 @@
 
-name: Mini Feedback App CI
+name: Mini Feedback App CI/CD
 
 on:
   push:
@@ -37,3 +37,8 @@ jobs:
       - name: Test FastAPI Backend
         run: |
           python -c "from main import app; print('Backend working successfully!')"
+
+      - name: Deploy Frontend
+        run: |
+          sudo install -m 644 index.html /var/www/html/index.html
+          echo "Frontend deployed successfully!"
